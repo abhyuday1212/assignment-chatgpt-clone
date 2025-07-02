@@ -1,28 +1,44 @@
-"use client"
-import { useState } from "react"
-import type React from "react"
-
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { MessageSquare, Plus, Search, Library, Settings, User, Mic, Paperclip } from "lucide-react"
+"use client";
+import { useEffect, useState } from "react";
+import type React from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  MessageSquare,
+  Plus,
+  Search,
+  Library,
+  Settings,
+  User,
+  Mic,
+  Paperclip,
+} from "lucide-react";
+import { clearChatHistory } from "@/lib/historySlice";
 
 export default function HomePage() {
-  const router = useRouter()
-  const [inputValue, setInputValue] = useState("")
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [inputValue, setInputValue] = useState("");
 
   const handleNewChat = () => {
-    const chatId = Date.now().toString()
-    router.push(`/chat/${chatId}`)
-  }
+    dispatch(clearChatHistory());
+    router.push(`/`);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (inputValue.trim()) {
-      const chatId = Date.now().toString()
-      router.push(`/chat/${chatId}?message=${encodeURIComponent(inputValue)}`)
+      const chatId = Date.now().toString();
+      router.push(`/chat/${chatId}?message=${encodeURIComponent(inputValue)}`);
     }
-  }
+  };
+
+  useEffect(() => {
+    dispatch(clearChatHistory());
+    return () => {};
+  }, [dispatch]);
 
   const recentChats = [
     "Odd sum handling fix",
@@ -31,7 +47,7 @@ export default function HomePage() {
     "OrderSlice and Cart API",
     "TLE Fix with Memoization",
     "Verification Status Filtering",
-  ]
+  ];
 
   return (
     <div className="flex h-screen bg-gray-900 text-white">
@@ -40,7 +56,11 @@ export default function HomePage() {
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-semibold">ChatGPT</h1>
-            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-white"
+            >
               <Settings className="h-4 w-4" />
             </Button>
           </div>
@@ -56,18 +76,19 @@ export default function HomePage() {
 
         <div className="flex-1 px-4 overflow-y-auto">
           <div className="space-y-2 mb-6">
-            <Button variant="ghost" className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700"
+            >
               <Search className="h-4 w-4" />
               Search chats
-            </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700">
-              <Library className="h-4 w-4" />
-              Library
             </Button>
           </div>
 
           <div className="space-y-1">
-            <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-2">Chats</h3>
+            <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-2">
+              Chats
+            </h3>
             {recentChats.map((chat, index) => (
               <Button
                 key={index}
@@ -82,10 +103,12 @@ export default function HomePage() {
         </div>
 
         <div className="p-4 border-t border-gray-700">
-          <Button variant="ghost" className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700"
+          >
             <User className="h-4 w-4" />
-            Upgrade plan
-            <span className="ml-auto text-xs bg-yellow-600 px-2 py-1 rounded">Plus</span>
+            Profile
           </Button>
         </div>
       </div>
@@ -106,20 +129,26 @@ export default function HomePage() {
               </svg>
             </Button>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">Get Plus</Button>
         </div>
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col items-center justify-center px-4">
           <div className="text-center max-w-2xl mx-auto">
-            <h1 className="text-4xl font-medium text-white mb-8">What's on the agenda today?</h1>
+            <h1 className="text-4xl font-medium text-white mb-8">
+              What's on the agenda today?
+            </h1>
           </div>
 
           {/* Input Area */}
           <div className="w-full max-w-3xl">
             <form onSubmit={handleSubmit} className="relative">
               <div className="flex items-center bg-gray-700 rounded-lg p-3">
-                <Button type="button" variant="ghost" size="sm" className="text-gray-400 hover:text-white mr-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400 hover:text-black  mr-2"
+                >
                   <Paperclip className="h-4 w-4" />
                 </Button>
 
@@ -131,16 +160,16 @@ export default function HomePage() {
                 />
 
                 <div className="flex items-center gap-2 ml-2">
-                  <Button type="button" variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                    <Mic className="h-4 w-4" />
-                  </Button>
-
                   <Button
                     type="submit"
                     disabled={!inputValue.trim()}
                     className="bg-white text-gray-900 hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 rounded-full p-2"
                   >
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
                       <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                     </svg>
                   </Button>
@@ -151,5 +180,5 @@ export default function HomePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

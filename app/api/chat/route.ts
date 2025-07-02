@@ -1,64 +1,46 @@
-import { openai } from "@ai-sdk/openai"
-import { streamText } from "ai"
+import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
 
 // Allow streaming responses up to 30 seconds
-export const maxDuration = 30
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
+    const { messages } = await req.json();
 
     // Check if API key is available
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GOOGLE_API_KEY) {
       return new Response(
         JSON.stringify({
-          error: "OpenAI API key not configured",
-          details: "Please add OPENAI_API_KEY to your environment variables",
+          error: "Google Gemini API key not configured",
+          details: "Please add GOOGLE_API_KEY to your environment variables",
         }),
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
-        },
-      )
+        }
+      );
     }
 
-    // Convert messages to the correct format for AI SDK
-    const formattedMessages = messages.map((message: any) => ({
-      role: message.role === "user" ? "user" : "assistant",
-      content: message.content,
-    }))
+    // Concatenate all messages into a single prompt
+    const prompt = messages
+      .map(
+        (msg: any) =>
+          `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+      )
+      .join("\n");
 
-    const result = await streamText({
-      model: openai("gpt-4o-mini"),
-      messages: [
-        {
-          role: "system",
-          content: "You are a helpful AI assistant. Provide clear, concise, and helpful responses.",
-        },
-        ...formattedMessages,
-      ],
-      temperature: 0.7,
-      maxTokens: 1000,
-    })
+    const { text } = await generateText({
+      model: google("models/gemini-2.0-flash-exp"),
+      prompt,
+    });
 
-    return result.toDataStreamResponse()
+    return new Response(JSON.stringify({ result: text }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error: any) {
-    console.error("Chat API error:", error)
-
-    // Handle specific OpenAI errors
-    if (error.message?.includes("quota") || error.message?.includes("billing")) {
-      return new Response(
-        JSON.stringify({
-          error: "OpenAI quota exceeded",
-          details: "Please check your OpenAI billing and usage limits",
-        }),
-        {
-          status: 429,
-          headers: { "Content-Type": "application/json" },
-        },
-      )
-    }
-
+    console.error("Chat API error:", error);
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",
@@ -67,7 +49,7 @@ export async function POST(req: Request) {
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
-      },
-    )
+      }
+    );
   }
 }

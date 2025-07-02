@@ -69,7 +69,7 @@ export function ChatInput({ onSendMessage, isLoading = false, onStop }: ChatInpu
         />
 
         <div className="flex space-x-1">
-          <Button
+          {/* <Button
             type="button"
             size="sm"
             variant="ghost"
@@ -77,7 +77,7 @@ export function ChatInput({ onSendMessage, isLoading = false, onStop }: ChatInpu
             disabled={isLoading}
           >
             <Mic className="h-4 w-4" />
-          </Button>
+          </Button> */}
 
           {isLoading ? (
             <Button

@@ -4,11 +4,11 @@ import { useRef, useEffect } from "react"
 import { ChatMessage } from "@/components/chat-message"
 import { Button } from "@/components/ui/button"
 
-interface Message {
-  id: number
-  sender: string
-  message: string
-}
+export type Message = {
+  id: number;
+  sender: string;
+  message: string;
+};
 
 interface ChatDisplayProps {
   messages: Message[]
@@ -49,7 +49,7 @@ export function ChatDisplay({
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="min-h-full px-6 py-8">
+      <div className="min-h-full px-6 py-6">
         {/* Empty state */}
         {messages.length === 0 && !isLoading && !streamingMessage && (
           <div className="flex items-center justify-center h-full min-h-[60vh]">

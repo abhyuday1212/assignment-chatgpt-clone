@@ -18,10 +18,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning={true}>
+      <body className={inter.className} cz-shortcut-listen="true">
         <Providers>{children}</Providers>
       </body>
     </html>
-  )
+  );
 }

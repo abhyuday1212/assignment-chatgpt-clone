@@ -1,6 +1,6 @@
-"use client"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+"use client";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -9,16 +9,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Plus, Search, Library, Settings, User, MessageSquare } from "lucide-react"
+} from "@/components/ui/sidebar";
+import {
+  Plus,
+  Search,
+  Library,
+  Settings,
+  User,
+  MessageSquare,
+} from "lucide-react";
 
 export function ChatSidebar() {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleNewChat = () => {
-    const chatId = Date.now().toString()
-    router.push(`/chat/${chatId}`)
-  }
+    const chatId = Date.now().toString();
+    router.push(`/`);
+  };
 
   const recentChats = [
     "Odd sum handling fix",
@@ -27,7 +34,7 @@ export function ChatSidebar() {
     "OrderSlice and Cart API",
     "TLE Fix with Memoization",
     "Verification Status Filtering",
-  ]
+  ];
 
   return (
     <Sidebar className="border-r border-gray-700 bg-gray-800">
@@ -55,16 +62,13 @@ export function ChatSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          <SidebarMenuItem>
-            <SidebarMenuButton className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700">
-              <Library className="h-4 w-4" />
-              Library
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+  
         </SidebarMenu>
 
         <div className="mt-8">
-          <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-2">Chats</h3>
+          <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-2">
+            Chats
+          </h3>
           <SidebarMenu>
             {recentChats.map((chat, index) => (
               <SidebarMenuItem key={index}>
@@ -89,13 +93,12 @@ export function ChatSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700">
                 <User className="h-4 w-4" />
-                Upgrade plan
-                <span className="ml-auto text-xs bg-yellow-600 px-2 py-1 rounded">Plus</span>
+                Profile
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </div>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }
