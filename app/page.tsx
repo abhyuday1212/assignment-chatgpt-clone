@@ -1,31 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
 import type React from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useAppDispatch } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  MessageSquare,
-  Plus,
-  Search,
-  Library,
-  Settings,
-  User,
-  Mic,
-  Paperclip,
-} from "lucide-react";
+import { Paperclip, Mic2 } from "lucide-react";
 import { clearChatHistory } from "@/lib/historySlice";
+import { Textarea } from "@/components/ui/textarea";
+import Sidebar from "@/components/Sidebar";
+import { setExtractedText } from "@/lib/fileUploadSlice";
 
 export default function HomePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");
-
-  const handleNewChat = () => {
-    dispatch(clearChatHistory());
-    router.push(`/`);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,86 +23,44 @@ export default function HomePage() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as any);
+    }
+  };
+
+  const handleUpload = async () => {
+    try {
+      const response = await fetch("/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+      const extractedText = result.extractedText;
+      if (extractedText) {
+        setExtractedText(extractedText);
+      }
+      console.log("Upload response:", result);
+    } catch (error) {
+      console.error("Upload error:", error);
+    }
+  };
+
   useEffect(() => {
     dispatch(clearChatHistory());
     return () => {};
   }, [dispatch]);
 
-  const recentChats = [
-    "Odd sum handling fix",
-    "Perfect Sum Issue",
-    "NextAuth Redirect Loop Fix",
-    "OrderSlice and Cart API",
-    "TLE Fix with Memoization",
-    "Verification Status Filtering",
-  ];
-
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen text-white">
       {/* Sidebar */}
-      <div className="w-64 bg-gray-800 flex flex-col">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-semibold">ChatGPT</h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-400 hover:text-white"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <Button
-            onClick={handleNewChat}
-            className="w-full justify-start gap-2 bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-          >
-            <Plus className="h-4 w-4" />
-            New chat
-          </Button>
-        </div>
-
-        <div className="flex-1 px-4 overflow-y-auto">
-          <div className="space-y-2 mb-6">
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700"
-            >
-              <Search className="h-4 w-4" />
-              Search chats
-            </Button>
-          </div>
-
-          <div className="space-y-1">
-            <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-2">
-              Chats
-            </h3>
-            {recentChats.map((chat, index) => (
-              <Button
-                key={index}
-                variant="ghost"
-                className="w-full justify-start text-sm text-gray-300 hover:bg-gray-700 h-8 px-2"
-              >
-                <MessageSquare className="h-3 w-3 mr-2 flex-shrink-0" />
-                <span className="truncate">{chat}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <div className="p-4 border-t border-gray-700">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700"
-          >
-            <User className="h-4 w-4" />
-            Profile
-          </Button>
-        </div>
-      </div>
-
+      <Sidebar />
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-[#212121]">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <div className="flex items-center gap-2">
@@ -133,37 +79,28 @@ export default function HomePage() {
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <div className="text-center max-w-2xl mx-auto">
-            <h1 className="text-4xl font-medium text-white mb-8">
-              What's on the agenda today?
-            </h1>
-          </div>
+          <span className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-white to-gray-700/80 bg-clip-text text-center text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-semibold leading-none text-transparent dark:from-black dark:to-slate-300/10 mb-16">
+            Hey, Ready to dive in?
+          </span>
 
           {/* Input Area */}
           <div className="w-full max-w-3xl">
-            <form onSubmit={handleSubmit} className="relative">
-              <div className="flex items-center bg-gray-700 rounded-lg p-3">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-400 hover:text-black  mr-2"
-                >
-                  <Paperclip className="h-4 w-4" />
-                </Button>
-
-                <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Ask anything"
-                  className="flex-1 bg-transparent border-0 text-white placeholder-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-
-                <div className="flex items-center gap-2 ml-2">
+            <div className="bg-[#303030] rounded-3xl p-2">
+              <form onSubmit={handleSubmit} className="mb-0">
+                <div className="flex items-center gap-2">
+                  <Textarea
+                    autoFocus
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ask anything"
+                    className="flex-1 bg-transparent border-0 text-white placeholder-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none"
+                    rows={1}
+                  />
                   <Button
                     type="submit"
                     disabled={!inputValue.trim()}
-                    className="bg-white text-gray-900 hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 rounded-full p-2"
+                    className="bg-white text-gray-900 hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 rounded-full p-2 flex-shrink-0"
                   >
                     <svg
                       className="h-4 w-4"
@@ -174,8 +111,28 @@ export default function HomePage() {
                     </svg>
                   </Button>
                 </div>
+              </form>
+
+              <div className="flex justify-start gap-2">
+                <Button
+                  onClick={handleUpload}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400 hover:text-white flex-shrink-0"
+                >
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400 hover:text-white flex-shrink-0"
+                >
+                  <Mic2 className="h-4 w-4" />
+                </Button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>
