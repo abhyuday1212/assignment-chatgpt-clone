@@ -29,7 +29,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-64 bg-[#181818] flex flex-col">
+    <div className="hidden md:flex w-64 bg-[#181818] flex-col">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold">ChatGPT</h1>
