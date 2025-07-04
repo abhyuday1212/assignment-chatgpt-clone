@@ -3,9 +3,9 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { MessageSquare, Plus, Search, Settings, User } from "lucide-react";
-import { useAppDispatch } from "@/lib/hooks";
+import { useAppDispatch } from "@/store/hooks";
 import { useRouter } from "next/navigation";
-import { clearChatHistory } from "@/lib/historySlice";
+import { clearChatHistory } from "@/store/slices/historySlice";
 
 const Sidebar = () => {
   const dispatch = useAppDispatch();

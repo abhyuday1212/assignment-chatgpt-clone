@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 export type Message = {
   id: number;
   sender: string;
-  message: string;
+  message: any;
 };
 
 interface ChatDisplayProps {

@@ -9,7 +9,7 @@ interface ChatMessageProps {
   message: {
     id: number;
     sender: string;
-    message: string;
+    message: any;
   };
   onEdit: (id: number) => void;
   onCopy: (message: string) => void;

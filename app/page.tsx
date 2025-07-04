@@ -1,16 +1,20 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import type React from "react";
-import { useAppDispatch } from "@/lib/hooks";
-import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/store/hooks";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Paperclip, Mic2 } from "lucide-react";
-import { clearChatHistory } from "@/lib/historySlice";
+import { clearChatHistory } from "@/store/slices/historySlice";
 import { Textarea } from "@/components/ui/textarea";
 import Sidebar from "@/components/Sidebar";
-import { setExtractedText } from "@/lib/fileUploadSlice";
+import { setExtractedText } from "@/store/slices/fileUploadSlice";
+import axios from "axios";
 
 export default function HomePage() {
+  const params = useParams();
+  const chatID = params.id as string;
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");
@@ -30,29 +34,38 @@ export default function HomePage() {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (file: File) => {
     try {
-      const response = await fetch("/upload", {
-        method: "POST",
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await axios.post("/api/upload", formData, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
 
-      const result = await response.json();
-      const extractedText = result.extractedText;
-      if (extractedText) {
-        setExtractedText(extractedText);
+      const data = res.data.data;
+
+      if (!res.status) {
+        console.error("Upload failed:", data.message);
+        alert("Failed to upload file. Please try again.");
+        dispatch(setExtractedText(""));
+        return;
       }
-      console.log("Upload response:", result);
+
+      const extractedText = data.extractedText;
+      if (extractedText) {
+        dispatch(setExtractedText(extractedText));
+      }
+      console.log("Upload response:", data);
     } catch (error) {
       console.error("Upload error:", error);
     }
   };
 
   useEffect(() => {
-    dispatch(clearChatHistory());
-    return () => {};
+    dispatch(clearChatHistory(chatID));
   }, [dispatch]);
 
   return (
@@ -80,7 +93,7 @@ export default function HomePage() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col items-center justify-center px-4">
           <span className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-white to-gray-700/80 bg-clip-text text-center text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-semibold leading-none text-transparent dark:from-black dark:to-slate-300/10 mb-16">
-            Hey, Ready to dive in?
+            What's on the agenda today?
           </span>
 
           {/* Input Area */}
@@ -113,16 +126,24 @@ export default function HomePage() {
                 </div>
               </form>
 
-              <div className="flex justify-start gap-2">
-                <Button
-                  onClick={handleUpload}
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-400 hover:text-white flex-shrink-0"
-                >
+              <div className="flex justify-start items-center gap-2">
+                {/* PDF Input */}
+                <label className="text-gray-400 hover:text-white flex-shrink-0 cursor-pointer flex ml-2">
                   <Paperclip className="h-4 w-4" />
-                </Button>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        console.log("Selected file:", file);
+                        await handleUpload(file);
+                      }
+                    }}
+                  />
+                </label>
+
                 <Button
                   type="button"
                   variant="ghost"

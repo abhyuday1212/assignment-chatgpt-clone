@@ -1,26 +1,28 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useSearchParams } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addChatHistoryEntry,
   updateChatHistoryEntry,
   clearChatHistory,
-} from "@/lib/historySlice";
+} from "@/store/slices/historySlice";
 import { ChatDisplay } from "@/components/chat-display";
 import { ChatInput } from "@/components/chat-input";
 
 import type { Message } from "@/components/chat-display";
 import Sidebar from "@/components/Sidebar";
+import { formatApiResponse } from "@/lib/utils";
 
 function ChatContent() {
   const params = useParams();
-  const chatID = params.id;
+  const chatID = params.id as string;
   const searchParams = useSearchParams();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const chatHistory: Message[] = useAppSelector(
-    (state) => state.chatHistory.value
+    (state) => state.chatHistory[chatID] || []
   );
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,13 +41,15 @@ function ChatContent() {
       processingInitialMessage.current = true;
       initializedRef.current = true;
 
-      dispatch(clearChatHistory());
+      if (!chatHistory.length) {
+        dispatch(clearChatHistory(chatID));
+      }
 
-      setTimeout(() => {
-        handleSendMessage(initialMessage);
-      }, 0);
+      handleSendMessage(initialMessage).finally(() => {
+        router.replace(`/chat/${chatID}`);
+      });
     }
-  }, [searchParams]);
+  }, [searchParams, chatID]);
 
   const handleSendMessage = async (
     message: string,
@@ -56,14 +60,16 @@ function ChatContent() {
     setIsLoading(true);
 
     try {
-      const messages = chatHistory.map((msg) => ({
+      const messagesToSend = chatHistory.map((msg) => ({
         role: msg.sender === "user" ? "user" : "assistant",
         content: msg.message,
       }));
-      messages.push({ role: "user", content: message });
+      messagesToSend.push({ role: "user", content: message });
 
       if (isEdit && editId) {
-        dispatch(updateChatHistoryEntry({ id: editId, message }));
+        dispatch(
+          updateChatHistoryEntry({ chatId: chatID, id: editId, message })
+        );
         setEditingMessageId(null);
 
         const newUserMessage = {
@@ -71,30 +77,35 @@ function ChatContent() {
           sender: "user",
           message: `[Edited] ${message}`,
         };
-        dispatch(addChatHistoryEntry(newUserMessage));
+        dispatch(
+          addChatHistoryEntry({ chatId: chatID, message: newUserMessage })
+        );
       } else {
         const userMessage = {
           id: Date.now(),
           sender: "user",
           message,
         };
-        dispatch(addChatHistoryEntry(userMessage));
+        dispatch(addChatHistoryEntry({ chatId: chatID, message: userMessage }));
       }
 
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, chatID }),
+        body: JSON.stringify({ messages: messagesToSend, chatID }),
       });
       const data = await response.json();
+
+      // const formattedMessage = formatApiResponse(data?.result);
 
       if (data.result) {
         const aiResponse = {
           id: Date.now() + 1,
           sender: "model",
-          message: data.result,
+          message: data?.result,
         };
-        dispatch(addChatHistoryEntry(aiResponse));
+
+        dispatch(addChatHistoryEntry({ chatId: chatID, message: aiResponse }));
       } else if (data.error) {
         console.error("Gemini API error:", data.error);
       }
@@ -114,11 +125,12 @@ function ChatContent() {
     navigator.clipboard.writeText(message);
   };
 
-  const handleClearChat = () => {
-    dispatch(clearChatHistory());
-    initializedRef.current = false;
-    processingInitialMessage.current = false;
-  };
+  // const handleClearChat = () => {
+  //   dispatch(clearChatHistory(chatID));
+  //   initializedRef.current = false;
+  //   processingInitialMessage.current = false;
+  // };
+
   return (
     <div className="flex h-screen text-white">
       <Sidebar />
@@ -129,7 +141,7 @@ function ChatContent() {
           {/* Chat Display Component */}
           <ChatDisplay
             messages={chatHistory}
-            isLoading={false}
+            isLoading={isLoading}
             error={null}
             onEdit={handleEditMessage}
             onCopy={handleCopyMessage}
@@ -141,7 +153,11 @@ function ChatContent() {
 
           {/* Input Area - Fixed at bottom */}
           <div className="border-t border-gray-700 p-4 flex-shrink-0">
-            <ChatInput onSendMessage={handleSendMessage} isLoading={false} />
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+            />
           </div>
         </div>
       </div>

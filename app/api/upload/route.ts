@@ -1,42 +1,90 @@
-import { NextRequest } from "next/server";
-import { IncomingForm } from "formidable";
+import { NextRequest, NextResponse } from "next/server";
+import path from "path";
 import fs from "fs";
 import { uploadToCloudinary } from "@/lib/helpers/cloudinary.helper";
-import { extractRawText } from "@/lib/helpers/uploadFile.helper";
 
-// Ensure Node.js runtime for compatibility
-export const runtime = "nodejs";
-
-// Disable Next.js's default body parser
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const buffer = Buffer.from(await req.arrayBuffer());
-    const tmpFilePath = `/tmp/uploaded-file`;
-    fs.writeFileSync(tmpFilePath, buffer);
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
 
-    const extractedText = await extractRawText({ buffer });
+    if (!file) {
+      return NextResponse.json({
+        status: false,
+        statusCode: 400,
+        message: "No file uploaded",
+        data: null,
+      });
+    }
 
-    const result = await uploadToCloudinary(tmpFilePath);
+    if (file.type !== "application/pdf") {
+      return NextResponse.json({
+        status: false,
+        statusCode: 400,
+        message: "Only PDF files are allowed",
+        data: null,
+      });
+    }
 
-    fs.unlinkSync(tmpFilePath);
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    return new Response(
-      JSON.stringify({ url: result?.secure_url, extractedText: extractedText }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // Extract text from PDF
+    // let extractedText: string;
+    // try {
+    //   extractedText = await extractFormattedText(buffer);
+    // } catch (error) {
+    //   console.error("Text extraction failed:", error);
+    //   return NextResponse.json({
+    //     status: false,
+    //     statusCode: 500,
+    //     message: "Failed to extract text from PDF",
+    //     data: null,
+    //   });
+    // }
+
+    // Upload to Cloudinary
+    let cloudinaryResult;
+    try {
+      cloudinaryResult = await uploadToCloudinary(buffer);
+    } catch (error) {
+      console.error("Cloudinary upload failed:", error);
+      return NextResponse.json({
+        status: false,
+        statusCode: 500,
+        message: "Failed to upload file to Cloudinary",
+        data: null,
+      });
+    }
+
+    if (!cloudinaryResult) {
+      return NextResponse.json({
+        status: false,
+        statusCode: 500,
+        message: "Failed to upload file to Cloudinary",
+        data: null,
+      });
+    }
+
+    const data = {
+      url: cloudinaryResult.secure_url,
+      // extractedText: extractedText,
+      fileName: file.name,
+    };
+
+    return NextResponse.json({
+      status: true,
+      statusCode: 200,
+      message: "File uploaded successfully",
+      data: data,
+    });
   } catch (error: any) {
-    return new Response(
-      JSON.stringify({ error: error.message || "Upload failed" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    console.error("Upload route error:", error);
+    return NextResponse.json({
+      status: false,
+      statusCode: 500,
+      message: error.message || "Upload failed",
+      data: null,
+    });
   }
 }
