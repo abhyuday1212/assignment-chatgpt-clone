@@ -1,30 +1,29 @@
-# Next.js chat app
+# ChatGPT CLONE
 
 *Automatically synced with your [v0.dev](https://v0.dev) deployments*
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/alphas-projects-ddf58ac7/v0-next-js-chat-app)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/25HiZEVs2aP)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://assignment-galaxy-ai.vercel.app/)
 
 ## Overview
-
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+This is a ChatGPT clone. Features included -
+- AiVercel SDK
+- File Upload to Cloudinary
+- Backend Cache for multi user chat
+- Clerk Authentication
+- Modern and Sleek UI
+- Component based structuring
+- Build with NextJs-15
 
 ## Deployment
 
-Your project is live at:
+Project is live at:
 
-**[https://vercel.com/alphas-projects-ddf58ac7/v0-next-js-chat-app](https://vercel.com/alphas-projects-ddf58ac7/v0-next-js-chat-app)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/25HiZEVs2aP](https://v0.dev/chat/projects/25HiZEVs2aP)**
+**[https://assignment-galaxy-ai.vercel.app/](https://assignment-galaxy-ai.vercel.app/)**
 
 ## How It Works
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+1. Clone the Repository
+2. Create a .env file
+3. Copy the fields from .env.example and get the Credentials
+4. Install dependecies (npm install).
+5. Run the project (npm run dev).
