@@ -26,11 +26,12 @@ export async function POST(req: Request) {
     context.lastUpdated = now;
 
     // Check if API key is available
-    if (!process.env.GOOGLE_API_KEY) {
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return new Response(
         JSON.stringify({
           error: "Google Gemini API key not configured",
-          details: "Please add GOOGLE_API_KEY to your environment variables",
+          details:
+            "Please add GOOGLE_GENERATIVE_AI_API_KEY to your environment variables",
         }),
         {
           status: 500,
