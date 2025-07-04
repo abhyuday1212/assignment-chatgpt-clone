@@ -6,7 +6,7 @@ export default function Loading() {
       <Sidebar />
 
       <div className="flex-1 flex items-center justify-center animate-pulse">
-        <div className="text-gray-400">Loading...</div>
+        <div className="text-gray-400"></div>
       </div>
     </div>
   );
