@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import Sidebar from "@/components/Sidebar";
 import { setExtractedText } from "@/store/slices/fileUploadSlice";
 import axios from "axios";
-import { UserButton } from "@clerk/nextjs";
 import Header from "@/components/header";
 
 export default function HomePage() {
@@ -20,6 +19,7 @@ export default function HomePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,11 +73,11 @@ export default function HomePage() {
   return (
     <div className="flex h-screen text-white">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {/* Main Content */}
       <div className="flex-1 flex flex-col bg-[#212121]">
         {/* Header */}
-        <Header />
+        <Header onToggle={() => setSidebarOpen((s) => !s)} />
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col items-center justify-center px-4">

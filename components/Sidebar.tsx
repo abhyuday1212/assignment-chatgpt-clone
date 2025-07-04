@@ -2,48 +2,83 @@
 
 import React from "react";
 import { Button } from "./ui/button";
-import { MessageSquare, Plus, Search, Settings, User } from "lucide-react";
+import { MessageSquare, Plus, Search, X } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { useParams, useRouter } from "next/navigation";
 import { clearChatHistory } from "@/store/slices/historySlice";
 import { UserButton } from "@clerk/nextjs";
+import { recentChats } from "@/lib/data/sidebar-chats";
 
-const Sidebar = () => {
+type SidebarProps = {
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const param = useParams();
-  const chatID = param.id as string;
+  const { id } = useParams();
+  const chatID = id as string;
 
   const handleNewChat = () => {
     dispatch(clearChatHistory(chatID));
     router.push(`/`);
+    onClose();
   };
 
-  const recentChats = [
-    "Odd sum handling fix",
-    "Perfect Sum Issue",
-    "NextAuth Redirect Loop Fix",
-    "OrderSlice and Cart API",
-    "TLE Fix with Memoization",
-    "Verification Status Filtering",
-  ];
-
   return (
-    <div className="hidden md:flex w-64 bg-[#181818] flex-col">
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold">ChatGPT</h1>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-400 hover:text-white"
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
-        </div>
+    <>
+      {/* Desktop (always visible on md+) */}
+      <div className="hidden md:flex w-64 bg-[#181818] flex-col">
+        <SidebarContent onNewChat={handleNewChat} />
+      </div>
 
+      {/* Mobile Drawer */}
+      <div className="fixed inset-0 z-50 flex md:hidden pointer-events-none">
+        {/* backdrop */}
+        <div
+          onClick={onClose}
+          className={`
+            absolute inset-0 bg-black
+            transition-opacity duration-300 ease-in-out
+            ${isOpen ? "opacity-50 pointer-events-auto" : "opacity-0"}
+          `}
+        />
+
+        {/* panel */}
+        <div
+          className={`
+            relative w-64 bg-[#181818] flex flex-col z-10
+            transform transition-transform duration-300 ease-in-out
+            ${
+              isOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full"
+            }
+          `}
+        >
+          <div className="flex items-center justify-between p-4 border-b border-gray-700">
+            <h1 className="text-xl font-semibold">ChatGPT</h1>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="text-gray-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+          <SidebarContent onNewChat={handleNewChat} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function SidebarContent({ onNewChat }: { onNewChat: () => void }) {
+  return (
+    <>
+      <div className="p-4">
         <Button
-          onClick={handleNewChat}
+          onClick={onNewChat}
           className="w-full justify-start gap-2 bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
         >
           <Plus className="h-4 w-4" />
@@ -66,9 +101,9 @@ const Sidebar = () => {
           <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-2">
             Chats
           </h3>
-          {recentChats.map((chat, index) => (
+          {recentChats.map((chat, i) => (
             <Button
-              key={index}
+              key={i}
               variant="ghost"
               className="w-full justify-start text-sm text-gray-300 hover:bg-gray-700 h-8 px-2"
             >
@@ -91,8 +126,6 @@ const Sidebar = () => {
           }}
         />
       </div>
-    </div>
+    </>
   );
-};
-
-export default Sidebar;
+}

@@ -13,6 +13,7 @@ import { ChatInput } from "@/components/chat-input";
 
 import type { Message } from "@/components/chat-display";
 import Sidebar from "@/components/Sidebar";
+import Header from "@/components/header";
 // import { formatApiResponse } from "@/lib/utils";
 
 function ChatContent() {
@@ -26,6 +27,7 @@ function ChatContent() {
   );
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const initializedRef = useRef(false);
   const processingInitialMessage = useRef(false);
@@ -133,12 +135,13 @@ function ChatContent() {
 
   return (
     <div className="flex h-screen text-white">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main content: always centered in the viewport */}
       <div className="flex min-h-screen bg-[#212121] w-full">
         <div className="w-full max-w-4xl flex flex-col h-[100vh] px-4 py-2 mx-auto">
           {/* Chat Display Component */}
+          <Header onToggle={() => setSidebarOpen((s) => !s)} />
           <ChatDisplay
             messages={chatHistory}
             isLoading={isLoading}
