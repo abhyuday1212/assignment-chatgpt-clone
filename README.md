@@ -18,7 +18,7 @@ This is a ChatGPT clone. Features included -
 
 Project is live at:
 
-**[https://assignment-galaxy-ai.vercel.app/](https://assignment-chat-gpt-clone.vercel.app/)**
+**[https://assignment-chat-gpt-clone.vercel.app/](https://assignment-chat-gpt-clone.vercel.app/)**
 
 ## How It Works
 
