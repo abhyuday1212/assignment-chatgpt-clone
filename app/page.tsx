@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Sidebar from "@/components/Sidebar";
 import { setExtractedText } from "@/store/slices/fileUploadSlice";
 import axios from "axios";
+import { UserButton } from "@clerk/nextjs";
 
 export default function HomePage() {
   const params = useParams();
@@ -88,6 +89,8 @@ export default function HomePage() {
               </svg>
             </Button>
           </div>
+
+          <UserButton />
         </div>
 
         {/* Main Content Area */}

@@ -13,7 +13,7 @@ import { ChatInput } from "@/components/chat-input";
 
 import type { Message } from "@/components/chat-display";
 import Sidebar from "@/components/Sidebar";
-import { formatApiResponse } from "@/lib/utils";
+// import { formatApiResponse } from "@/lib/utils";
 
 function ChatContent() {
   const params = useParams();

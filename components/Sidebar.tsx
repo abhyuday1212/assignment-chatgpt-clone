@@ -4,15 +4,18 @@ import React from "react";
 import { Button } from "./ui/button";
 import { MessageSquare, Plus, Search, Settings, User } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { clearChatHistory } from "@/store/slices/historySlice";
+import { UserButton } from "@clerk/nextjs";
 
 const Sidebar = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const param = useParams();
+  const chatID = param.id as string;
 
   const handleNewChat = () => {
-    dispatch(clearChatHistory());
+    dispatch(clearChatHistory(chatID));
     router.push(`/`);
   };
 
@@ -76,14 +79,17 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <div className="p-4 border-t border-gray-700">
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2 text-gray-300 hover:bg-gray-700"
-        >
-          <User className="h-4 w-4" />
-          Profile
-        </Button>
+      <div className="p-2 border-t border-gray-700 flex items-center justify-between text-gray-50">
+        <UserButton
+          showName
+          appearance={{
+            elements: {
+              userButtonText: "text-white",
+              userButtonBox: "text-white",
+              avatarBox: "text-white",
+            },
+          }}
+        />
       </div>
     </div>
   );
